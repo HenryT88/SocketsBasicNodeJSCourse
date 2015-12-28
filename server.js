@@ -9,8 +9,19 @@ app.use(express.static(__dirname + '/public'));
 
 console.log('Running');
 
-io.on('connection', function(){
+io.on('connection', function(socket){
 	console.log('User Connected via Socket.IO');
+	
+	socket.on('message', function(message){
+		console.log('Message RCVD!!: ' + message.text);
+		
+		socket.broadcast.emit('message', message);
+	});
+	
+	socket.emit('message', {
+		text: 'Welcome to the Chat App!'
+	});
+	
 });
 
 http.listen(PORT, function(){
@@ -18,18 +29,3 @@ http.listen(PORT, function(){
 })
 
 
-
-/*
-
-var bodyParser = require('body-parser');
-var _ = require('underscore');
-var db = require('./db.js');
-var middleware = require ('./middleware.js')(db);
-var bcrypt = require('bcrypt');
-
-
-var todos = [];
-var todoNextId = 1;
-
-app.use(bodyParser.json());
-*/
