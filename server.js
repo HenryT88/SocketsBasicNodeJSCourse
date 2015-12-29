@@ -11,6 +11,30 @@ app.use(express.static(__dirname + '/public'));
 
 var clientInfo = {};
 
+//Sends Current users to provided Socket
+function sendCurrentUsers(socket){
+	var info = clientInfo[socket.id];
+	var users = [];
+	
+	if(typeof info === 'undefined'){
+		return;
+	}
+	
+	Object.keys(clientInfo).forEach(function(socketId){
+		var userInfo = clientInfo[socketId];
+		if (info.room === userInfo.room){
+			users.push(userInfo.name);
+		}
+	});
+	
+	socket.emit('message', {
+		name: 'System',
+		text: 'Current Users: ' + users.join(', '),
+		timestamp: moment().valueOf()
+	});
+	return
+}
+
 io.on('connection', function(socket){
 	console.log('User Connected via Socket.IO');
 	
@@ -42,10 +66,20 @@ io.on('connection', function(socket){
 	socket.on('message', function(message){
 		console.log('Message RCVD!!: ' + message.text);
 		
+		if(message.text === '@currentUsers')
+		{
+			sendCurrentUsers(socket);
+		}
+		else
+		{
+			message.timestamp = moment().valueOf();
+			io.to(clientInfo[socket.id].room).emit('message', message);
+		}
+		
 		//socket.broadcast.emit('message', message); //BROADCAST TO ALL BUT SELF
 		
 		//this is the Individual Message from the Sender/users
-		io.to(clientInfo[socket.id].room).emit('message', message); //BROADCAST TO ALL INCLUDING SELF
+		//io.to(clientInfo[socket.id].room).emit('message', message); //BROADCAST TO ALL INCLUDING SELF
 	});
 	
 	
