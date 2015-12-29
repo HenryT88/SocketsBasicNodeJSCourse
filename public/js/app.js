@@ -9,14 +9,24 @@ console.log(name + ' wants to join ' + room);
 
 socket.on('connect', function(){
 	console.log('connected to Socket.IO server!!');
+	
+	socket.emit('joinRoom', {
+		name: name,
+		room: room
+	});
+	
 });
 
 socket.on('message', function(message){
 	
 	var momentTimeStamp = moment.utc(message.timestamp);
 	var $message = jQuery('.messages');
+	jQuery('#roomName').text(room);
+	
 	console.log('New Message:');
 	console.log(message.text);
+	
+	
 	
 	//Displaying Sent Messages
 	$message.append('<p><strong>' + message.name + ' ' + momentTimeStamp.local().format('h:mm:ss a') +'</strong></p>');

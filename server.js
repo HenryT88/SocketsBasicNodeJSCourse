@@ -9,10 +9,20 @@ var moment = require('moment');
 
 app.use(express.static(__dirname + '/public'));
 
-console.log('Running');
+var clientInfo = {};
 
 io.on('connection', function(socket){
 	console.log('User Connected via Socket.IO');
+	
+	socket.on('joinRoom', function(req){
+		clientInfo[socket.id] = req;
+		socket.join(req.room);
+		socket.broadcast.to(req.room).emit('message', {
+			name: 'System',
+			text: req.name + ' has Joined!',
+			timestamp : moment().valueOf()
+		});
+	});
 	
 	socket.on('message', function(message){
 		console.log('Message RCVD!!: ' + message.text);
@@ -20,7 +30,7 @@ io.on('connection', function(socket){
 		//socket.broadcast.emit('message', message); //BROADCAST TO ALL BUT SELF
 		
 		//this is the Individual Message from the Sender/users
-		io.emit('message', message); //BROADCAST TO ALL INCLUDING SELF
+		io.to(clientInfo[socket.id].room).emit('message', message); //BROADCAST TO ALL INCLUDING SELF
 	});
 	
 	
