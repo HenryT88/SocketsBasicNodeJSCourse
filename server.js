@@ -15,7 +15,8 @@ io.on('connection', function(socket){
 	socket.on('message', function(message){
 		console.log('Message RCVD!!: ' + message.text);
 		
-		socket.broadcast.emit('message', message);
+		//socket.broadcast.emit('message', message); //BROADCAST TO ALL BUT SELF
+		io.emit('message', message); //BROADCAST TO ALL INCLUDING SELF
 	});
 	
 	socket.emit('message', {
