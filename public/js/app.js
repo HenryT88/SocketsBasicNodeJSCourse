@@ -1,6 +1,11 @@
 
 var now = moment();
-var socket = io();				
+var socket = io();	
+
+var name = getQueryVariable('name') || 'Unknown Person';
+var room = getQueryVariable('room');
+
+console.log(name + ' wants to join ' + room);			
 
 socket.on('connect', function(){
 	console.log('connected to Socket.IO server!!');
@@ -9,11 +14,13 @@ socket.on('connect', function(){
 socket.on('message', function(message){
 	
 	var momentTimeStamp = moment.utc(message.timestamp);
+	var $message = jQuery('.messages');
 	console.log('New Message:');
 	console.log(message.text);
 	
 	//Displaying Sent Messages
-	jQuery('.messages').append('<p><strong>'+ momentTimeStamp.local().format('h:mm:ss a') +'</strong> &nbsp;&nbsp;&nbsp;'+ message.text + '</p>');
+	$message.append('<p><strong>' + message.name + ' ' + momentTimeStamp.local().format('h:mm:ss a') +'</strong></p>');
+	$message.append('<p> &nbsp;&nbsp;&nbsp;' + message.text + '</p>');
 });
 
 // Process FORM Message-Form -- Handles submitting of new message
@@ -25,6 +32,7 @@ $form.on('submit', function(event){
 	event.preventDefault();
 	
 	socket.emit('message', {
+		name: name,
 		text:  $form.find('input[name=message]').val()
 	});
 	
