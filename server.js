@@ -4,6 +4,8 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var moment = require('moment');
+
 
 app.use(express.static(__dirname + '/public'));
 
@@ -16,11 +18,17 @@ io.on('connection', function(socket){
 		console.log('Message RCVD!!: ' + message.text);
 		
 		//socket.broadcast.emit('message', message); //BROADCAST TO ALL BUT SELF
+		
+		//this is the Individual Message from the Sender/users
 		io.emit('message', message); //BROADCAST TO ALL INCLUDING SELF
 	});
 	
+	
+	
 	socket.emit('message', {
-		text: 'Welcome to the Chat App!'
+		
+		text: 'Welcome to the Chat App!',
+		timestamp: moment().valueOf()
 	});
 	
 });
